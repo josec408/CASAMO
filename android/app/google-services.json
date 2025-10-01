@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "61738589633",
+    "project_id": "casamo-f8119",
+    "storage_bucket": "casamo-f8119.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61738589633:android:e4e7a225a86e3203636340",
+        "android_client_info": {
+          "package_name": "com.example.casamo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "61738589633-md5p02m4q6v458hd1hlkk8ok62cdk4m7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn4qP0g65tZo7WmsX__CeETiLjRYS4ybE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "61738589633-md5p02m4q6v458hd1hlkk8ok62cdk4m7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "61738589633-idvlpbfo0v2uh7j7cfakoeu3e8ubsks5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.casamo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61738589633:android:fcbab953bb762e35636340",
+        "android_client_info": {
+          "package_name": "unfv.studiantes.casamo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "61738589633-md5p02m4q6v458hd1hlkk8ok62cdk4m7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn4qP0g65tZo7WmsX__CeETiLjRYS4ybE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "61738589633-md5p02m4q6v458hd1hlkk8ok62cdk4m7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "61738589633-idvlpbfo0v2uh7j7cfakoeu3e8ubsks5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.casamo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
