@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Lista de pantallas
   late final List<Widget> _pages = [
-    _dashboard(), // Tu diseño actual de bienvenida
+    _dashboard(), // Pantalla de inicio personalizada
     const CalendarScreen(),
     const TasksScreen(),
     const StatsScreen(),
@@ -43,13 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color.fromARGB(255, 139, 4, 163),
         centerTitle: true,
         title: const Text(
-          "📚CASAMO ⏱️",
+          "📚 CASAMO ⏱️",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
           ),
         ),
-        // ❌ quitamos el botón de logout
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -65,42 +64,148 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.check_circle), label: "Tareas"),
           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Estadísticas"),
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Pomodoro"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Config."), // 👈 nuevo
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Config."),
         ],
       ),
     );
   }
 
-  // 🔹 Mantiene tu diseño original como widget
+  // 🔹 Pantalla de inicio mejorada
   Widget _dashboard() {
-    return Center(
+    final frases = [
+      "💪 La disciplina vence al talento.",
+      "📘 Estudia hoy, brilla mañana.",
+      "🔥 Cada pequeño avance cuenta.",
+      "🚀 La constancia es el camino al éxito.",
+      "🧠 Aprende algo nuevo cada día.",
+    ];
+    frases.shuffle();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🏠 Bienvenida
+          Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                children: [
+                  const Icon(Icons.home, size: 70, color: Color.fromARGB(255, 139, 4, 163)),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "¡Bienvenido a CASAMO! 🎉",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 139, 4, 163),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Hola, ${user?.email ?? "Usuario"} 👋",
+                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // 🌟 Frase motivacional
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 243, 229, 255),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              frases.first,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontStyle: FontStyle.italic,
+                color: Color.fromARGB(255, 100, 3, 143),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          // 📊 Resumen rápido
+          const Text(
+            "Resumen de Actividad 📅",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 139, 4, 163),
+            ),
+          ),
+          const SizedBox(height: 15),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _infoCard("Tareas", "3", Icons.check_circle, Colors.blue),
+              _infoCard("Cursos", "4", Icons.school, Colors.green),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _infoCard("Pomodoro", "2h 45m", Icons.timer, Colors.orange),
+              _infoCard("Notas", "Prom. 14.6", Icons.bar_chart, Colors.purple),
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          // 💜 Mensaje final motivador
+          const Text(
+            "💜 ¡Sigue avanzando, estás haciendo un gran trabajo!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔹 Widget auxiliar para las tarjetas de resumen
+  Widget _infoCard(String titulo, String valor, IconData icono, Color color) {
+    return Expanded(
       child: Card(
-        elevation: 6,
+        elevation: 5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(15),
         ),
-        margin: const EdgeInsets.all(20),
         child: Padding(
-          padding: const EdgeInsets.all(30),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.home, size: 70, color: Color.fromARGB(255, 160, 2, 240)),
-              const SizedBox(height: 20),
+              Icon(icono, size: 35, color: color),
+              const SizedBox(height: 10),
               Text(
-                "¡Bienvenido a CASAMO! 🎉",
+                valor,
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 139, 4, 163),
+                  color: color,
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 5),
               Text(
-                "Hola, ${user?.email ?? "Usuario"} 👋",
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
-                textAlign: TextAlign.center,
+                titulo,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
             ],
           ),
@@ -109,6 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 
 
 
