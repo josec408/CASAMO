@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:casamo/app_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -179,34 +181,40 @@ class _CursoCardState extends State<CursoCard> {
     nombreCtrl.text = widget.curso.nombre;
   }
 
-  void calcularNota() {
-    final c = widget.curso;
+void calcularNota() {
+  final c = widget.curso;
 
-    final p1 = double.tryParse(c.p1.text) ?? 0;
-    final ep = double.tryParse(c.ep.text) ?? 0;
-    final p2 = double.tryParse(c.p2.text) ?? 0;
-    final ef = double.tryParse(c.ef.text) ?? 0;
+  final p1 = double.tryParse(c.p1.text) ?? 0;
+  final ep = double.tryParse(c.ep.text) ?? 0;
+  final p2 = double.tryParse(c.p2.text) ?? 0;
+  final ef = double.tryParse(c.ef.text) ?? 0;
 
-    final w1 = (double.tryParse(c.w1.text) ?? 0) / 100;
-    final w2 = (double.tryParse(c.w2.text) ?? 0) / 100;
-    final w3 = (double.tryParse(c.w3.text) ?? 0) / 100;
-    final w4 = (double.tryParse(c.w4.text) ?? 0) / 100;
+  final w1 = (double.tryParse(c.w1.text) ?? 0) / 100;
+  final w2 = (double.tryParse(c.w2.text) ?? 0) / 100;
+  final w3 = (double.tryParse(c.w3.text) ?? 0) / 100;
+  final w4 = (double.tryParse(c.w4.text) ?? 0) / 100;
 
-    final totalPeso = w1 + w2 + w3 + w4;
+  final totalPeso = w1 + w2 + w3 + w4;
 
-    setState(() {
-      if (totalPeso != 1.0) {
-        c.mensaje = "⚠️ Los porcentajes deben sumar 100%.";
-      } else {
-        c.notaFinal = (p1 * w1) + (ep * w2) + (p2 * w3) + (ef * w4);
-        c.mensaje = c.notaFinal >= 11
-            ? "✅ Aprobado con ${c.notaFinal.toStringAsFixed(2)}"
-            : "❌ Desaprobado con ${c.notaFinal.toStringAsFixed(2)}";
-      }
-    });
+  setState(() {
+    if (totalPeso != 1.0) {
+      c.mensaje = "⚠️ Los porcentajes deben sumar 100%.";
+    } else {
+      c.notaFinal = (p1 * w1) + (ep * w2) + (p2 * w3) + (ef * w4);
+      c.mensaje = c.notaFinal >= 11
+          ? "✅ Aprobado con ${c.notaFinal.toStringAsFixed(2)}"
+          : "❌ Desaprobado con ${c.notaFinal.toStringAsFixed(2)}";
 
-    widget.onChanged(); // guardar automáticamente
-  }
+      // 🔽 Aquí agregas la actualización del provider
+      Provider.of<AppData>(context, listen: false)
+          .actualizarPromedio(c.notaFinal);
+    }
+  });
+
+  widget.onChanged(); // guardar automáticamente
+}
+
+
 
   @override
   Widget build(BuildContext context) {

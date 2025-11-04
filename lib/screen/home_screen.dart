@@ -1,5 +1,7 @@
+import 'package:casamo/app_data.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 // Importar las otras pantallas
 import 'calendar_screen.dart';
@@ -72,33 +74,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 🔹 Pantalla de inicio mejorada
   Widget _dashboard() {
-    final frases = [
-      "💪 La disciplina vence al talento.",
-      "📘 Estudia hoy, brilla mañana.",
-      "🔥 Cada pequeño avance cuenta.",
-      "🚀 La constancia es el camino al éxito.",
-      "🧠 Aprende algo nuevo cada día.",
-    ];
-    frases.shuffle();
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 🏠 Bienvenida
-          Card(
+    return Consumer<AppData>(
+      builder: (context, appData, child) {
+        return Center(
+          child: Card(
             elevation: 6,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            color: Colors.white,
+            margin: const EdgeInsets.all(20),
             child: Padding(
-              padding: const EdgeInsets.all(25),
+              padding: const EdgeInsets.all(30),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.home, size: 70, color: Color.fromARGB(255, 139, 4, 163)),
-                  const SizedBox(height: 10),
+                  const Icon(Icons.home, size: 70, color: Color.fromARGB(255, 160, 2, 240)),
+                  const SizedBox(height: 20),
                   const Text(
                     "¡Bienvenido a CASAMO! 🎉",
                     style: TextStyle(
@@ -106,78 +97,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(255, 139, 4, 163),
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Text(
                     "Hola, ${user?.email ?? "Usuario"} 👋",
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 25),
+                  // 🔹 Tarjetas de resumen
+                  _buildResumenTile(Icons.check_circle, "Tareas pendientes", "${appData.tareasPendientes}"),
+                  _buildResumenTile(Icons.bar_chart, "Promedio general", appData.promedioGeneral.toStringAsFixed(2)),
+                  _buildResumenTile(Icons.timer, "Pomodoros completados", "${appData.pomodorosCompletados}"),
                 ],
               ),
             ),
           ),
-
-          const SizedBox(height: 20),
-
-          // 🌟 Frase motivacional
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 243, 229, 255),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              frases.first,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-                color: Color.fromARGB(255, 100, 3, 143),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 25),
-
-          // 📊 Resumen rápido
-          const Text(
-            "Resumen de Actividad 📅",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 139, 4, 163),
-            ),
-          ),
-          const SizedBox(height: 15),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _infoCard("Tareas", "3", Icons.check_circle, Colors.blue),
-              _infoCard("Cursos", "4", Icons.school, Colors.green),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _infoCard("Pomodoro", "2h 45m", Icons.timer, Colors.orange),
-              _infoCard("Notas", "Prom. 14.6", Icons.bar_chart, Colors.purple),
-            ],
-          ),
-
-          const SizedBox(height: 30),
-
-          // 💜 Mensaje final motivador
-          const Text(
-            "💜 ¡Sigue avanzando, estás haciendo un gran trabajo!",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.black54),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
+
+Widget _buildResumenTile(IconData icon, String titulo, String valor) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: const Color.fromARGB(255, 160, 2, 240)),
+        const SizedBox(width: 10),
+        Text("$titulo: ",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(valor, style: const TextStyle(fontSize: 16)),
+      ],
+    ),
+  );
+}
+
 
   // 🔹 Widget auxiliar para las tarjetas de resumen
   Widget _infoCard(String titulo, String valor, IconData icono, Color color) {

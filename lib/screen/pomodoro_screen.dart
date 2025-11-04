@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:casamo/app_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 
 class PomodoroScreen extends StatefulWidget {
@@ -60,6 +62,12 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     setState(() {
       if (isWorking) {
         completedSessions++;
+
+        // ✅ Actualiza el contador global en Provider
+        Provider.of<AppData>(context, listen: false).actualizarPomodoros(
+          Provider.of<AppData>(context, listen: false).pomodorosCompletados + 1
+        );
+
         if (completedSessions % sessionsBeforeLongBreak == 0) {
           isWorking = false;
           remainingSeconds = longBreak * 60;
@@ -74,6 +82,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       isRunning = false;
     });
   }
+
 
   void _openSettings() {
     final workCtrl = TextEditingController(text: workDuration.toString());

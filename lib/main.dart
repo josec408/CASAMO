@@ -4,13 +4,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screen/login_screen.dart';
 import 'screen/home_screen.dart';
+import 'package:provider/provider.dart';
+import 'app_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppData(), // ✅ se inicializa el Provider global
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -32,15 +40,18 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
+
           if (snapshot.hasData) {
             return const HomeScreen(); // ✅ usuario logueado
           }
+
           return const LoginScreen(); // ✅ usuario NO logueado
         },
       ),
     );
   }
 }
+
 
 
 
