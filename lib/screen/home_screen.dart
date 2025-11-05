@@ -187,58 +187,6 @@ Widget _buildInfoCard({
   );
 }
 
-
-Widget _buildResumenTile(IconData icon, String titulo, String valor) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: const Color.fromARGB(255, 160, 2, 240)),
-        const SizedBox(width: 10),
-        Text("$titulo: ",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        Text(valor, style: const TextStyle(fontSize: 16)),
-      ],
-    ),
-  );
-}
-
-
-  // 🔹 Widget auxiliar para las tarjetas de resumen
-  Widget _infoCard(String titulo, String valor, IconData icono, Color color) {
-    return Expanded(
-      child: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icono, size: 35, color: color),
-              const SizedBox(height: 10),
-              Text(
-                valor,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                titulo,
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 
