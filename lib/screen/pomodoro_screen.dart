@@ -1,8 +1,6 @@
-import 'dart:async';
-import 'package:casamo/app_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:casamo/app_data.dart';
 
 class PomodoroScreen extends StatefulWidget {
   const PomodoroScreen({super.key});
@@ -12,210 +10,17 @@ class PomodoroScreen extends StatefulWidget {
 }
 
 class _PomodoroScreenState extends State<PomodoroScreen> {
-  int workDuration = 25;
-  int shortBreak = 5;
-  int longBreak = 15;
-  int sessionsBeforeLongBreak = 4;
-
-  int remainingSeconds = 0;
-  int completedSessions = 0;
-  bool isWorking = true;
-  bool isRunning = false;
-  Timer? _timer;
-
-  List<String> tasks = ['Estudiar'];
-  Set<String> completedTasks = {};
-
-  @override
-  void initState() {
-    super.initState();
-    remainingSeconds = workDuration * 60;
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (remainingSeconds > 0) {
-        setState(() => remainingSeconds--);
-      } else {
-        _timer?.cancel();
-        _nextSession();
-      }
-    });
-    setState(() => isRunning = true);
-  }
-
-  void _pauseTimer() {
-    _timer?.cancel();
-    setState(() => isRunning = false);
-  }
-
-  void _resetTimer() {
-    _timer?.cancel();
-    setState(() {
-      isRunning = false;
-      remainingSeconds = isWorking ? workDuration * 60 : shortBreak * 60;
-    });
-  }
-
-  void _nextSession() {
-    setState(() {
-      if (isWorking) {
-        completedSessions++;
-
-        // ✅ Actualiza el contador global en Provider
-        Provider.of<AppData>(context, listen: false).actualizarPomodoros(
-          Provider.of<AppData>(context, listen: false).pomodorosCompletados + 1
-        );
-
-        if (completedSessions % sessionsBeforeLongBreak == 0) {
-          isWorking = false;
-          remainingSeconds = longBreak * 60;
-        } else {
-          isWorking = false;
-          remainingSeconds = shortBreak * 60;
-        }
-      } else {
-        isWorking = true;
-        remainingSeconds = workDuration * 60;
-      }
-      isRunning = false;
-    });
-  }
-
-
-  void _openSettings() {
-    final workCtrl = TextEditingController(text: workDuration.toString());
-    final shortCtrl = TextEditingController(text: shortBreak.toString());
-    final longCtrl = TextEditingController(text: longBreak.toString());
-    final sessionsCtrl = TextEditingController(text: sessionsBeforeLongBreak.toString());
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Configuración de Pomodoro"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: workCtrl,
-              decoration: const InputDecoration(labelText: "Trabajo (min)"),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: shortCtrl,
-              decoration: const InputDecoration(labelText: "Descanso corto (min)"),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: longCtrl,
-              decoration: const InputDecoration(labelText: "Descanso largo (min)"),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: sessionsCtrl,
-              decoration: const InputDecoration(labelText: "Sesiones antes de largo"),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                workDuration = int.tryParse(workCtrl.text) ?? workDuration;
-                shortBreak = int.tryParse(shortCtrl.text) ?? shortBreak;
-                longBreak = int.tryParse(longCtrl.text) ?? longBreak;
-                sessionsBeforeLongBreak = int.tryParse(sessionsCtrl.text) ?? sessionsBeforeLongBreak;
-                remainingSeconds = workDuration * 60;
-                isWorking = true;
-                isRunning = false;
-                _timer?.cancel();
-              });
-              Navigator.pop(context);
-            },
-            child: const Text("Guardar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _addTaskDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Nueva tarea"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Nombre de la tarea"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                setState(() => tasks.add(controller.text.trim()));
-              }
-              Navigator.pop(context);
-            },
-            child: const Text("Agregar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _editTask(int index) {
-    final controller = TextEditingController(text: tasks[index]);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Editar tarea"),
-        content: TextField(controller: controller),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                setState(() => tasks[index] = controller.text.trim());
-              }
-              Navigator.pop(context);
-            },
-            child: const Text("Guardar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteTask(int index) {
-    setState(() {
-      completedTasks.remove(tasks[index]);
-      tasks.removeAt(index);
-    });
-  }
-
-  String _formatTime(int seconds) {
-    final min = seconds ~/ 60;
-    final sec = seconds % 60;
-    return "${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}";
-  }
+  final TextEditingController workCtrl = TextEditingController();
+  final TextEditingController shortCtrl = TextEditingController();
+  final TextEditingController longCtrl = TextEditingController();
+  final TextEditingController sessionsCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _timer?.cancel();
+    workCtrl.dispose();
+    shortCtrl.dispose();
+    longCtrl.dispose();
+    sessionsCtrl.dispose();
     super.dispose();
   }
 
@@ -234,37 +39,46 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: _openSettings,
+            onPressed: () => _openSettings(context),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addTaskDialog,
+        onPressed: () => _addTaskDialog(context),
         backgroundColor: purple,
         child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          children: [
-            _buildTimer(purple),
-            const SizedBox(height: 20),
-            Expanded(child: _buildTaskList(purple)),
-            const SizedBox(height: 10),
-            _buildControls(purple),
-            const SizedBox(height: 16),
-          ],
+        child: Consumer<AppData>(
+          builder: (context, data, _) {
+            double totalSeconds = data.isWorking
+                ? data.workDuration * 60
+                : (data.completedSessions % data.sessionsBeforeLongBreak == 0
+                    ? data.longBreak * 60
+                    : data.shortBreak * 60);
+
+            double progress = 1 - (data.pomodoroSegundos / totalSeconds);
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
+
+            return Column(
+              children: [
+                _buildTimer(data, purple, progress, totalSeconds),
+                const SizedBox(height: 20),
+                Expanded(child: _buildTaskList(data, purple)),
+                const SizedBox(height: 10),
+                _buildControls(data, purple),
+                const SizedBox(height: 16),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildTimer(Color color) {
-    double totalSeconds = isWorking
-        ? workDuration * 60
-        : (completedSessions % sessionsBeforeLongBreak == 0 ? longBreak * 60 : shortBreak * 60);
-    double progress = 1 - (remainingSeconds / totalSeconds);
-
+  Widget _buildTimer(AppData data, Color color, double progress, double totalSeconds) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -281,61 +95,56 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(isWorking ? "Trabajo" : "Descanso", style: const TextStyle(color: Colors.black87)),
+            Text(data.isWorking ? "Trabajo" : "Descanso",
+                style: const TextStyle(color: Colors.black87)),
             const SizedBox(height: 8),
-            Text(_formatTime(remainingSeconds),
-                style: TextStyle(fontSize: 38, color: color, fontWeight: FontWeight.w300)),
+            Text(
+              _formatTime(data.pomodoroSegundos),
+              style: TextStyle(fontSize: 38, color: color, fontWeight: FontWeight.w300),
+            ),
             const SizedBox(height: 8),
-            Text("#${completedSessions + 1}", style: const TextStyle(color: Colors.black45)),
+            Text("#${data.completedSessions + 1}", style: const TextStyle(color: Colors.black45)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTaskList(Color purple) {
+  Widget _buildTaskList(AppData data, Color purple) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("Tareas", style: TextStyle(color: Colors.black87, fontSize: 18)),
           const SizedBox(height: 8),
-          ...tasks.asMap().entries.map((entry) {
+          ...data.tasks.asMap().entries.map((entry) {
             int i = entry.key;
             String task = entry.value;
 
             return ListTile(
               leading: Icon(
-                completedTasks.contains(task) ? Icons.check_circle : Icons.circle_outlined,
-                color: completedTasks.contains(task) ? purple : Colors.grey,
+                data.completedTasks.contains(task) ? Icons.check_circle : Icons.circle_outlined,
+                color: data.completedTasks.contains(task) ? purple : Colors.grey,
               ),
               title: Text(
                 task,
                 style: TextStyle(
                   color: Colors.black87,
-                  decoration: completedTasks.contains(task) ? TextDecoration.lineThrough : null,
+                  decoration: data.completedTasks.contains(task) ? TextDecoration.lineThrough : null,
                 ),
               ),
               trailing: PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) {
-                  if (value == 'edit') _editTask(i);
-                  if (value == 'delete') _deleteTask(i);
+                  if (value == 'edit') _editTask(context, data, i);
+                  if (value == 'delete') data.deleteTask(i);
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(value: 'edit', child: Text('Editar')),
                   const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
                 ],
               ),
-              onTap: () {
-                setState(() {
-                  if (completedTasks.contains(task)) {
-                    completedTasks.remove(task);
-                  } else {
-                    completedTasks.add(task);
-                  }
-                });
-              },
+              onTap: () => data.toggleTaskCompletion(task),
             );
           }),
         ],
@@ -343,20 +152,23 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     );
   }
 
-  Widget _buildControls(Color purple) {
+  Widget _buildControls(AppData data, Color purple) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         OutlinedButton(
-          onPressed: isRunning ? _pauseTimer : _startTimer,
+          onPressed: data.pomodoroActivo ? data.pausarPomodoro : data.iniciarPomodoro,
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: purple),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
           ),
-          child: Text(isRunning ? "⏸️ Pausar" : "▶️ Iniciar", style: TextStyle(color: purple)),
+          child: Text(
+            data.pomodoroActivo ? "⏸️ Pausar" : "▶️ Iniciar",
+            style: TextStyle(color: purple),
+          ),
         ),
         OutlinedButton(
-          onPressed: _resetTimer,
+          onPressed: data.reiniciarPomodoro,
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: purple),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
@@ -366,15 +178,94 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       ],
     );
   }
-  
+
+  void _openSettings(BuildContext context) {
+    final data = Provider.of<AppData>(context, listen: false);
+    workCtrl.text = data.workDuration.toString();
+    shortCtrl.text = data.shortBreak.toString();
+    longCtrl.text = data.longBreak.toString();
+    sessionsCtrl.text = data.sessionsBeforeLongBreak.toString();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Configuración de Pomodoro"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: workCtrl, decoration: const InputDecoration(labelText: "Trabajo (min)"), keyboardType: TextInputType.number),
+            TextField(controller: shortCtrl, decoration: const InputDecoration(labelText: "Descanso corto (min)"), keyboardType: TextInputType.number),
+            TextField(controller: longCtrl, decoration: const InputDecoration(labelText: "Descanso largo (min)"), keyboardType: TextInputType.number),
+            TextField(controller: sessionsCtrl, decoration: const InputDecoration(labelText: "Sesiones antes de largo"), keyboardType: TextInputType.number),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              data.updatePomodoroSettings(
+                work: int.tryParse(workCtrl.text),
+                shortBreak: int.tryParse(shortCtrl.text),
+                longBreak: int.tryParse(longCtrl.text),
+                sessionsBeforeLongBreak: int.tryParse(sessionsCtrl.text),
+              );
+              Navigator.pop(context);
+            },
+            child: const Text("Guardar"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addTaskDialog(BuildContext context) {
+    final controller = TextEditingController();
+    final data = Provider.of<AppData>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Nueva tarea"),
+        content: TextField(controller: controller, decoration: const InputDecoration(hintText: "Nombre de la tarea")),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) data.addTask(controller.text.trim());
+              Navigator.pop(context);
+            },
+            child: const Text("Agregar"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editTask(BuildContext context, AppData data, int index) {
+    final controller = TextEditingController(text: data.tasks[index]);
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Editar tarea"),
+        content: TextField(controller: controller),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) data.editTask(index, controller.text.trim());
+              Navigator.pop(context);
+            },
+            child: const Text("Guardar"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(int seconds) {
+    final min = seconds ~/ 60;
+    final sec = seconds % 60;
+    return "${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}";
+  }
 }
-
-
-
-
-
-
-
-
-
-

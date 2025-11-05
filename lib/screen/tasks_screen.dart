@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:casamo/app_data.dart';
+import 'package:provider/provider.dart';
 
 class Task {
   String courseName;
@@ -76,6 +78,10 @@ class _TasksScreenState extends State<TasksScreen> {
             .map((taskJson) => Task.fromJson(jsonDecode(taskJson)))
             .toList());
       });
+
+      // ✅ Actualiza el contador global al cargar
+      Provider.of<AppData>(context, listen: false)
+          .actualizarTareas(_tasks.where((t) => !t.isDone).length);
     }
   }
 
@@ -88,7 +94,12 @@ class _TasksScreenState extends State<TasksScreen> {
           date: _selectedDate!,
         ));
       });
-      _saveTasks(); // 👈 Guardar
+
+      // ✅ Actualiza tareas pendientes globalmente
+      Provider.of<AppData>(context, listen: false)
+          .actualizarTareas(_tasks.where((t) => !t.isDone).length);
+
+      _saveTasks();
       Navigator.of(context).pop();
       _courseController.clear();
       _descController.clear();
@@ -193,59 +204,7 @@ class _TasksScreenState extends State<TasksScreen> {
         elevation: 1,
       ),
       body: _tasks.isEmpty
-          ? Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              color: Colors.white,
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.checklist_rounded,
-                          size: 120,
-                          color: Colors.black87,
-                        ),
-                        SizedBox(height: 30),
-                        Text(
-                          'Añadir la primera tarea',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 50,
-                    right: 30,
-                    child: Column(
-                      children: [
-                        Transform.rotate(
-                          angle: -0.5,
-                          child: const Icon(
-                            Icons.arrow_downward,
-                            size: 60,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        FloatingActionButton(
-                          onPressed: _showAddTaskDialog,
-                          backgroundColor: Colors.black87,
-                          child: const Icon(Icons.add, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
+          ? _buildEmptyView()
           : ListView.builder(
               itemCount: _tasks.length,
               itemBuilder: (context, index) {
@@ -302,7 +261,13 @@ class _TasksScreenState extends State<TasksScreen> {
                         setState(() {
                           task.isDone = val!;
                         });
-                        _saveTasks(); // 👈 Guardar cambio de estado
+
+                        // ✅ Actualizar número de tareas pendientes globalmente
+                        Provider.of<AppData>(context, listen: false)
+                            .actualizarTareas(
+                                _tasks.where((t) => !t.isDone).length);
+
+                        _saveTasks(); // guardar cambio
                       },
                       activeColor: Colors.black87,
                     ),
@@ -320,8 +285,60 @@ class _TasksScreenState extends State<TasksScreen> {
       backgroundColor: Colors.white,
     );
   }
+
+  Widget _buildEmptyView() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      color: Colors.white,
+      child: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.checklist_rounded,
+                  size: 120,
+                  color: Colors.black87,
+                ),
+                SizedBox(height: 30),
+                Text(
+                  'Añadir la primera tarea',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 50,
+            right: 30,
+            child: Column(
+              children: [
+                Transform.rotate(
+                  angle: -0.5,
+                  child: const Icon(
+                    Icons.arrow_downward,
+                    size: 60,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  onPressed: _showAddTaskDialog,
+                  backgroundColor: Colors.black87,
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }
-
-
-
-
