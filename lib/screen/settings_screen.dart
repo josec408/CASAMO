@@ -19,7 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -118,11 +118,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
-
+        ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text("Cerrar sesión"),
+            onTap: _logout,
+          ),
         ],
       ),
     );
   }
+         
 }
 
 
