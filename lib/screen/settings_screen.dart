@@ -1,6 +1,6 @@
+import 'package:casamo/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -37,36 +37,88 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.person),
             title: const Text("Perfil"),
             subtitle: const Text("Editar datos personales"),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
           ),
+
           const Divider(),
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text("Notificaciones"),
             subtitle: const Text("Configurar recordatorios"),
-            onTap: () {},
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Notificaciones"),
+                  content: const Text("Próximamente podrás configurar tus recordatorios aquí."),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cerrar"),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
+
           const Divider(),
           ListTile(
             leading: const Icon(Icons.color_lens),
             title: const Text("Tema"),
             subtitle: const Text("Oscuro / Claro"),
-            onTap: () {},
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  bool isDark = Theme.of(context).brightness == Brightness.dark;
+                  return AlertDialog(
+                    title: const Text("Seleccionar tema"),
+                    content: SwitchListTile(
+                      title: const Text("Modo oscuro"),
+                      value: isDark,
+                      onChanged: (value) {
+                        // 🔧 Aquí luego puedes usar Provider para cambiar el tema global
+                      },
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cerrar"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
+
           const Divider(),
+
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text("Acerca de"),
             subtitle: const Text("Versión 1.0.0"),
-            onTap: () {},
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: "CASAMO",
+                applicationVersion: "1.0.0",
+                applicationIcon: const Icon(Icons.school, color: Colors.deepPurple),
+                children: [
+                  const Text("Aplicación Pomodoro para estudiantes desarrollada con Flutter."),
+                  const SizedBox(height: 8),
+                  const Text("Desarrollador: José Caycho"),
+                ],
+              );
+            },
           ),
-          const Divider(),
 
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text("Cerrar sesión"),
-            onTap: _logout,
-          ),
         ],
       ),
     );
