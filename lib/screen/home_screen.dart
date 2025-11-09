@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _buildInfoCard(
                     icon: Icons.timer,
-                    title: "Pomodoros completados",
+                    title: "Pomodoros",
                     value: "${appData.pomodorosCompletados}",
                     color: const Color(0xFFFFE0B2),
                   ),

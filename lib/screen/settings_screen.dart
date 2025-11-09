@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../main.dart'; // 🔹 Instancia global de notificaciones
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,26 +16,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // 👇 El flujo vuelve automáticamente a LoginScreen por main.dart
   }
 
-  Future<void> _mostrarNotificacionPrueba() async {
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-      'prueba_channel', // ID del canal
-      'Prueba Notificación', // Nombre visible
-      channelDescription: 'Notificación de prueba',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
 
-    const NotificationDetails generalDetails =
-        NotificationDetails(android: androidDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      '¡Hola!',
-      'Esta es una notificación de prueba',
-      generalDetails,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,23 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text("Versión 1.0.0"),
             onTap: () {},
           ),
-          const Divider(),
-
-          // 🔹 Botón de prueba de notificación
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.notifications_active),
-              label: const Text("Probar notificación"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8E24AA),
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: _mostrarNotificacionPrueba,
-            ),
-          ),
-
           const Divider(),
 
           ListTile(
