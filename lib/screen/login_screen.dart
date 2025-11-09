@@ -1,6 +1,8 @@
 import 'package:casamo/screen/casamo_title.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,19 +18,80 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
-  // 🔹 Iniciar sesión
+  // 🔹 Iniciar sesión con verificación de copia de seguridad
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
       setState(() => isLoading = true);
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      final user = credential.user;
+      final firestore = FirebaseFirestore.instance;
+
+      // 🔸 Verificar si existe una copia de seguridad
+      final doc = await firestore
+          .collection('usuarios')
+          .doc(user!.uid)
+          .collection('backup')
+          .doc('ultimo')
+          .get();
+
+      if (doc.exists) {
+        final shouldRestore = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Restaurar copia de seguridad"),
+            content: const Text(
+              "Se encontró una copia de seguridad en tu cuenta.\n¿Deseas restaurarla?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("No"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Sí, restaurar"),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldRestore == true) {
+          final prefs = await SharedPreferences.getInstance();
+          final data = doc['datos'];
+
+          // Restaurar datos a local
+          await prefs.setString('tarea', data['tarea'] ?? '');
+          await prefs.setInt('duracion', data['duracion'] ?? 0);
+
+          // Actualizar nombre del perfil en FirebaseAuth
+          await user.updateDisplayName(data['nombre']);
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Copia restaurada correctamente ✅')),
+            );
+          }
+        }
+      }
+
+      // 🔸 Ir al Home
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message ?? "Error al iniciar sesión")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
       );
     } finally {
       setState(() => isLoading = false);
@@ -190,6 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 
