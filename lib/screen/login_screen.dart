@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
-  // 🔹 Iniciar sesión con verificación de copia de seguridad
+  // 🔹 Iniciar sesión con restauración de respaldo
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -33,15 +33,39 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = credential.user;
       final firestore = FirebaseFirestore.instance;
 
-      // 🔸 Verificar si existe una copia de seguridad
-      final doc = await firestore
-          .collection('usuarios')
-          .doc(user!.uid)
-          .collection('backup')
-          .doc('ultimo')
-          .get();
+      // 🔸 Verificar si el documento del usuario existe
+      final userDoc = firestore.collection('usuarios').doc(user!.uid);
+      final userSnapshot = await userDoc.get();
 
-      if (doc.exists) {
+      if (!userSnapshot.exists) {
+        // Crear documento base automáticamente si no existe
+        await userDoc.set({
+          'email': user.email,
+          'fechaCreacion': DateTime.now(),
+          'datos': {
+            'tareasPendientes': 0,
+            'promedioGeneral': 0,
+            'pomodorosCompletados': 0,
+            'sesionesActivas': 0,
+            'pomodoroSegundos': 0,
+            'pomodoroActivo': false,
+            'workDuration': 25,
+            'shortBreak': 5,
+            'longBreak': 15,
+            'sessionsBeforeLongBreak': 4,
+            'isWorking': true,
+            'completedSessions': 0,
+            'tasks': [],
+            'completedTasks': [],
+          },
+        });
+      }
+
+      // 🔸 Verificar si existe una copia de seguridad
+      final backupDoc =
+          await userDoc.collection('backup').doc('ultimo').get();
+
+      if (backupDoc.exists) {
         final shouldRestore = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
@@ -64,14 +88,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (shouldRestore == true) {
           final prefs = await SharedPreferences.getInstance();
-          final data = doc['datos'];
+          final data = backupDoc['datos'];
 
-          // Restaurar datos a local
-          await prefs.setString('tarea', data['tarea'] ?? '');
-          await prefs.setInt('duracion', data['duracion'] ?? 0);
+          // 🔹 Restaurar datos a local
+          await prefs.setInt('tareasPendientes', data['tareasPendientes'] ?? 0);
+          await prefs.setDouble(
+              'promedioGeneral', (data['promedioGeneral'] ?? 0).toDouble());
+          await prefs.setInt(
+              'pomodorosCompletados', data['pomodorosCompletados'] ?? 0);
+          await prefs.setInt('sesionesActivas', data['sesionesActivas'] ?? 0);
+          await prefs.setInt('pomodoroSegundos', data['pomodoroSegundos'] ?? 0);
+          await prefs.setBool('pomodoroActivo', data['pomodoroActivo'] ?? false);
+          await prefs.setInt('workDuration', data['workDuration'] ?? 25);
+          await prefs.setInt('shortBreak', data['shortBreak'] ?? 5);
+          await prefs.setInt('longBreak', data['longBreak'] ?? 15);
+          await prefs.setInt(
+              'sessionsBeforeLongBreak', data['sessionsBeforeLongBreak'] ?? 4);
+          await prefs.setBool('isWorking', data['isWorking'] ?? true);
+          await prefs.setInt(
+              'completedSessions', data['completedSessions'] ?? 0);
 
-          // Actualizar nombre del perfil en FirebaseAuth
-          await user.updateDisplayName(data['nombre']);
+          // Guardar listas
+          await prefs.setStringList(
+              'tasks', List<String>.from(data['tasks'] ?? []));
+          await prefs.setStringList('completedTasks',
+              List<String>.from(data['completedTasks'] ?? []));
+
+          // 🔹 Actualizar nombre del perfil (si hay campo)
+          if (data.containsKey('nombre')) {
+            await user.updateDisplayName(data['nombre']);
+          }
 
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -253,6 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 

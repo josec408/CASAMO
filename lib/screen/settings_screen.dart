@@ -1,6 +1,7 @@
 import 'package:casamo/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,9 +13,30 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    // 👇 El flujo vuelve automáticamente a LoginScreen por main.dart
+    try {
+      // 1️⃣ Borrar datos locales (SharedPreferences, etc.)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // 2️⃣ Cerrar sesión de Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // 3️⃣ Volver al login y limpiar rutas
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+
+      // 4️⃣ Confirmación visual
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sesión cerrada correctamente 👋')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cerrar sesión: $e')),
+      );
+    }
   }
+
 
 
 

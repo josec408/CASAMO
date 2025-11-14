@@ -1,6 +1,7 @@
 import 'package:casamo/screen/casamo_title.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // 👈 Agregado
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,16 +19,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool isLoading = false;
 
+  // 👇 Nueva función: crea documento base en Firestore
+  Future<void> crearDocumentoUsuario(User user) async {
+    final userDoc =
+        FirebaseFirestore.instance.collection('usuarios').doc(user.uid);
+
+    await userDoc.set({
+      "fecha": DateTime.now().toIso8601String(),
+      "datos": {
+        "tareasPendientes": 0,
+        "promedioGeneral": 0.0,
+        "pomodorosCompletados": 0,
+        "sesionesActivas": 0,
+        "pomodoroSegundos": 0,
+        "pomodoroActivo": false,
+        "workDuration": 25,
+        "shortBreak": 5,
+        "longBreak": 15,
+        "sessionsBeforeLongBreak": 4,
+        "isWorking": true,
+        "completedSessions": 0,
+        "tasks": [],
+        "completedTasks": [],
+      }
+    });
+  }
+
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
       setState(() => isLoading = true);
 
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // 👇 Crear usuario en Firebase Auth
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      final user = credential.user;
+      if (user != null) {
+        // 👇 Crear documento Firestore automáticamente
+        await crearDocumentoUsuario(user);
+      }
 
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
@@ -165,6 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
 
 
 
